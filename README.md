@@ -83,7 +83,7 @@ sudo ./scripts/install.sh
 
 **Windows** (Right-click PowerShell → Run as Administrator):
 ```powershell
-.\null-log.exe live
+.\bin\null-log.exe live
 ```
 
 **Linux/macOS** (with sudo):
@@ -147,7 +147,9 @@ cd null-logs
 # Step 2: Build the binary
 go build -ldflags="-s -w" -o bin\null-log.exe cmd\null-log\main.go
 
-# Step 3: Run it (as Administrator)
+# Step 3: Run it (as Administrator) - NOTE: binary is in bin\ folder
+.\bin\null-log.exe live
+# Or just check help
 .\bin\null-log.exe --help
 ```
 
