@@ -1,0 +1,33 @@
+title: Suspicious SMB Beaconing Pattern
+id: network_susp_smb_beacon
+status: stable
+description: Detects regular SMB connections suggesting C2 beaconing
+references:
+    - https://attack.mitre.org/techniques/T1071/002/
+author: null.log
+date: 2025/12/08
+logsource:
+    product: network
+    service: netflow
+detection:
+    selection:
+        destination_port: 445
+        connection_count: '>10'
+        time_interval: '<60'
+    condition: selection
+fields:
+    - source_ip
+    - destination_ip
+    - connection_count
+falsepositives:
+    - File server synchronization
+    - Backup software
+level: medium
+tags:
+    - attack.command_and_control
+    - attack.t1071.002
+explanation:
+    simple: "A program is making too many regular SMB connections - might be malware calling home"
+    technical: "Regular periodic SMB connections detected, characteristic of C2 beaconing over SMB"
+    remediation: "Identify the process, check if it's legitimate. Block suspicious IPs at firewall."
+    learning: "https://nullsector.dev/c2-beaconing"

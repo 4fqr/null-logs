@@ -1,0 +1,32 @@
+title: LSASS Memory Dump Attempt
+id: win_lsass_memory_dump
+status: stable
+description: Detects attempts to dump LSASS process memory for credential theft
+references:
+    - https://attack.mitre.org/techniques/T1003/001/
+author: null.log
+date: 2025/12/08
+logsource:
+    product: windows
+    service: security
+detection:
+    selection:
+        EventID: 4656
+        ProcessName|endswith: '\lsass.exe'
+        AccessMask: '0x1010'
+    condition: selection
+fields:
+    - SubjectUserName
+    - ProcessName
+    - ObjectName
+falsepositives:
+    - Legitimate debugging tools
+level: critical
+tags:
+    - attack.credential_access
+    - attack.t1003.001
+explanation:
+    simple: "Someone tried to steal your passwords from Windows memory"
+    technical: "LSASS process memory read detected - this is how tools like Mimikatz dump credentials"
+    remediation: "Immediately disconnect from network, change all passwords, scan for malware, check for unauthorized access"
+    learning: "https://nullsector.dev/lsass-dumping"

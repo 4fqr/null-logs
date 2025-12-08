@@ -1,0 +1,39 @@
+title: Suspicious Scheduled Task Creation
+id: win_scheduled_task_suspicious
+status: stable
+description: Detects creation of scheduled tasks with suspicious characteristics
+references:
+    - https://attack.mitre.org/techniques/T1053/005/
+author: null.log
+date: 2025/12/08
+logsource:
+    product: windows
+    service: security
+detection:
+    selection:
+        EventID: 4698
+    suspicious:
+        TaskContent|contains:
+            - 'powershell'
+            - 'cmd.exe'
+            - 'wscript'
+            - 'cscript'
+            - '\Temp\'
+            - '\AppData\'
+    condition: selection and suspicious
+fields:
+    - SubjectUserName
+    - TaskName
+    - TaskContent
+falsepositives:
+    - Software updaters
+level: high
+tags:
+    - attack.persistence
+    - attack.execution
+    - attack.t1053.005
+explanation:
+    simple: "A suspicious scheduled task was created to run code automatically"
+    technical: "Windows Task Scheduler was used to create a task with suspicious command-line patterns"
+    remediation: "Open Task Scheduler, locate the task, review its actions. Delete if unauthorized."
+    learning: "https://nullsector.dev/scheduled-tasks"

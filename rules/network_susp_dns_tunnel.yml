@@ -1,0 +1,31 @@
+id: network_susp_dns_tunnel
+title: DNS Tunneling Detected
+description: Detects potential DNS tunneling for data exfiltration or C2
+author: null.log
+date: 2025/12/08
+level: high
+status: experimental
+logsource:
+  category: network
+detection:
+  selection:
+    - unusually long DNS queries
+    - high frequency DNS requests to same domain
+  condition: selection
+falsepositives:
+  - CDN and cloud services
+  - Software updates
+tags:
+  - attack.exfiltration
+  - attack.t1048
+  - attack.command_and_control
+  - attack.t1071.004
+x_summary: "Someone might be using DNS to sneak data out of your network or receive commands"
+x_technical: "Abnormal DNS query patterns detected suggesting data is being hidden in DNS requests."
+x_remediation: |
+  1. Identify the process making the DNS queries
+  2. Block the destination domain
+  3. Review firewall logs for other suspicious domains
+  4. Consider using a DNS security service
+  5. Monitor for other data exfiltration attempts
+x_learning_link: "https://attack.mitre.org/techniques/T1071/004/"

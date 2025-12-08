@@ -1,0 +1,32 @@
+title: Suspicious Registry Run Key Persistence
+id: win_registry_run_key_persistence
+status: stable
+description: Detects modifications to Windows Registry Run keys used for persistence
+references:
+    - https://attack.mitre.org/techniques/T1547/001/
+author: null.log
+date: 2025/12/08
+logsource:
+    product: windows
+    service: sysmon
+detection:
+    selection:
+        EventID: 13
+        TargetObject|contains:
+            - '\Microsoft\Windows\CurrentVersion\Run'
+            - '\Microsoft\Windows\CurrentVersion\RunOnce'
+    condition: selection
+fields:
+    - TargetObject
+    - Details
+falsepositives:
+    - Legitimate software installers
+level: high
+tags:
+    - attack.persistence
+    - attack.t1547.001
+explanation:
+    simple: "A program added itself to auto-start when Windows boots"
+    technical: "Registry modification detected in Run/RunOnce keys, commonly used by malware for persistence"
+    remediation: "Check the program path in Registry Editor. Remove suspicious entries and scan with antivirus."
+    learning: "https://nullsector.dev/registry-persistence"

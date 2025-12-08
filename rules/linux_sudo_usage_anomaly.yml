@@ -1,0 +1,30 @@
+id: linux_sudo_usage_anomaly
+title: Unusual Sudo Command Execution
+description: Detects suspicious sudo command usage
+author: null.log
+date: 2025/12/08
+level: medium
+status: stable
+logsource:
+  product: linux
+  service: auth
+detection:
+  selection:
+    - 'sudo:'
+    - 'COMMAND='
+  condition: selection
+falsepositives:
+  - Normal administrative tasks
+  - Automated scripts
+tags:
+  - attack.privilege_escalation
+  - attack.t1548.003
+x_summary: "Someone used administrator privileges on your Linux system"
+x_technical: "Sudo command execution detected. Monitor for privilege escalation attempts."
+x_remediation: |
+  1. Review which user executed the sudo command
+  2. Check if the command was expected
+  3. Verify the user should have sudo access
+  4. Review /var/log/auth.log for patterns
+  5. Consider restricting sudo access
+x_learning_link: "https://attack.mitre.org/techniques/T1548/003/"

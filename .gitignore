@@ -1,0 +1,29 @@
+﻿# Binaries
+*.exe
+bin/*
+!bin/.gitkeep
+
+# Go
+*.o
+*.a
+*.so
+go.sum
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test files
+*.test
+coverage.out
+
+# Temporary files
+*.tmp
+*.log

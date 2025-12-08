@@ -1,0 +1,30 @@
+title: Windows Defender Disabled
+id: win_defender_disabled
+status: stable
+description: Detects attempts to disable Windows Defender real-time protection
+references:
+    - https://attack.mitre.org/techniques/T1562/001/
+author: null.log
+date: 2025/12/08
+logsource:
+    product: windows
+    service: security
+detection:
+    selection:
+        EventID: 5001
+        Provider_Name: 'Microsoft-Windows-Windows Defender'
+    condition: selection
+fields:
+    - Message
+falsepositives:
+    - Manual user actions
+    - System maintenance
+level: high
+tags:
+    - attack.defense_evasion
+    - attack.t1562.001
+explanation:
+    simple: "Windows Defender was turned off - malware often does this"
+    technical: "Real-time protection service was disabled, removing malware detection capability"
+    remediation: "Re-enable Windows Defender immediately. Run full system scan. Check for malware."
+    learning: "https://nullsector.dev/defender-evasion"

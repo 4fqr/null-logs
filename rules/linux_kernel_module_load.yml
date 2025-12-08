@@ -1,0 +1,37 @@
+title: Suspicious Kernel Module Load
+id: linux_kernel_module_load
+status: stable
+description: Detects loading of kernel modules from suspicious locations
+references:
+    - https://attack.mitre.org/techniques/T1547/006/
+author: null.log
+date: 2025/12/08
+logsource:
+    product: linux
+    service: auditd
+detection:
+    selection:
+        type: 'SYSCALL'
+        syscall: 'init_module'
+    suspicious:
+        - exe|contains:
+            - '/tmp/'
+            - '/dev/shm/'
+            - '/home/'
+    condition: selection and suspicious
+fields:
+    - exe
+    - comm
+    - uid
+falsepositives:
+    - Development and testing
+level: critical
+tags:
+    - attack.persistence
+    - attack.privilege_escalation
+    - attack.t1547.006
+explanation:
+    simple: "A kernel module was loaded from an unusual location - rootkit warning"
+    technical: "Kernel module loading detected from non-standard path, common rootkit installation technique"
+    remediation: "DO NOT REBOOT. Capture memory dump, check /proc/modules, contact security team."
+    learning: "https://nullsector.dev/linux-rootkits"

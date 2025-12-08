@@ -1,0 +1,31 @@
+title: Unauthorized SSH Key Addition
+id: linux_unauthorized_ssh_key
+status: stable
+description: Detects addition of new SSH authorized keys for persistence
+references:
+    - https://attack.mitre.org/techniques/T1098/004/
+author: null.log
+date: 2025/12/08
+logsource:
+    product: linux
+    service: auditd
+detection:
+    selection:
+        type: 'PATH'
+        name|contains: '.ssh/authorized_keys'
+    condition: selection
+fields:
+    - name
+    - auid
+    - uid
+falsepositives:
+    - Legitimate system administration
+level: high
+tags:
+    - attack.persistence
+    - attack.t1098.004
+explanation:
+    simple: "A new SSH key was added - someone might have created a backdoor"
+    technical: "Modification to authorized_keys file detected, allowing password-less SSH access"
+    remediation: "Review ~/.ssh/authorized_keys and remove unknown keys. Check for unauthorized access."
+    learning: "https://nullsector.dev/ssh-persistence"

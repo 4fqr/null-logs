@@ -1,0 +1,41 @@
+title: Linux Reverse Shell Detection
+id: linux_reverse_shell
+status: stable
+description: Detects common reverse shell patterns in command execution
+references:
+    - https://attack.mitre.org/techniques/T1059/004/
+author: null.log
+date: 2025/12/08
+logsource:
+    product: linux
+    service: auditd
+detection:
+    selection:
+        type: 'EXECVE'
+        a0|contains:
+            - '/bin/bash'
+            - '/bin/sh'
+            - 'python'
+            - 'perl'
+            - 'nc'
+    patterns:
+        - '>/dev/tcp/'
+        - 'socket'
+        - 'connect'
+        - 'exec'
+    condition: selection and patterns
+fields:
+    - a0
+    - a1
+    - a2
+falsepositives:
+    - Legitimate remote administration
+level: critical
+tags:
+    - attack.execution
+    - attack.t1059.004
+explanation:
+    simple: "Someone opened a backdoor connection to a remote computer"
+    technical: "Reverse shell execution detected - attacker can run commands remotely on this system"
+    remediation: "Immediately disconnect network, kill the process, check for other backdoors, review system logs"
+    learning: "https://nullsector.dev/reverse-shells"

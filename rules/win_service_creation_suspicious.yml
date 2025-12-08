@@ -1,0 +1,34 @@
+id: win_service_creation_suspicious
+title: Suspicious Service Creation
+description: Detects creation of suspicious Windows services for persistence
+author: null.log
+date: 2025/12/08
+level: high
+status: stable
+logsource:
+  product: windows
+  service: system
+detection:
+  selection:
+    EventID: 7045
+    ServiceFileName|contains:
+      - '\temp\'
+      - '\appdata\'
+      - '.exe /c'
+      - 'cmd.exe'
+      - 'powershell.exe'
+  condition: selection
+falsepositives:
+  - Legitimate software installation
+tags:
+  - attack.persistence
+  - attack.t1543.003
+x_summary: "A suspicious Windows service was installed that could start malware automatically"
+x_technical: "New Windows service created from unusual location (temp folder or AppData), commonly used for persistence."
+x_remediation: |
+  1. Identify the service name and stop it immediately
+  2. Check the service binary location
+  3. Remove the service using 'sc delete <servicename>'
+  4. Scan the system for additional malware
+  5. Review other recently created services
+x_learning_link: "https://attack.mitre.org/techniques/T1543/003/"

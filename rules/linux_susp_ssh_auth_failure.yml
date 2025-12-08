@@ -1,0 +1,30 @@
+id: linux_susp_ssh_auth_failure
+title: Multiple SSH Authentication Failures
+description: Detects brute force SSH login attempts
+author: null.log
+date: 2025/12/08
+level: medium
+status: stable
+logsource:
+  product: linux
+  service: auth
+detection:
+  selection:
+    - 'Failed password'
+    - 'authentication failure'
+  condition: selection
+falsepositives:
+  - Users forgetting passwords
+  - Misconfigured automation
+tags:
+  - attack.credential_access
+  - attack.t1110
+x_summary: "Someone is trying to guess SSH passwords to break into your system"
+x_technical: "Multiple SSH authentication failures detected, indicating possible brute force attack."
+x_remediation: |
+  1. Check which IP addresses are attempting login
+  2. Block suspicious IPs with firewall rules
+  3. Use SSH key authentication instead of passwords
+  4. Install fail2ban to auto-block attackers
+  5. Consider changing the SSH port from default 22
+x_learning_link: "https://attack.mitre.org/techniques/T1110/"

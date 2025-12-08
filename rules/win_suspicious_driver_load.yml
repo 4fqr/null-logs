@@ -1,0 +1,36 @@
+title: Suspicious Driver Load
+id: win_suspicious_driver_load
+status: stable
+description: Detects loading of unsigned or suspicious kernel drivers
+references:
+    - https://attack.mitre.org/techniques/T1068/
+author: null.log
+date: 2025/12/08
+logsource:
+    product: windows
+    service: sysmon
+detection:
+    selection:
+        EventID: 6
+    suspicious:
+        - Signed: 'false'
+        - ImageLoaded|contains:
+            - '\Temp\'
+            - '\Users\'
+            - '\AppData\'
+    condition: selection and suspicious
+fields:
+    - ImageLoaded
+    - SignatureStatus
+    - Signed
+falsepositives:
+    - Development and testing environments
+level: critical
+tags:
+    - attack.privilege_escalation
+    - attack.t1068
+explanation:
+    simple: "An unsigned driver was loaded - this is extremely dangerous and often malicious"
+    technical: "Kernel driver loaded without valid signature or from suspicious location, potential rootkit"
+    remediation: "Isolate system immediately, capture memory dump, analyze driver, reinstall OS if compromised."
+    learning: "https://nullsector.dev/windows-rootkits"

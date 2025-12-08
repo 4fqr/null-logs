@@ -1,0 +1,38 @@
+title: Suspicious Cron Job Creation
+id: linux_cronjob_suspicious
+status: stable
+description: Detects creation of suspicious cron jobs for persistence
+references:
+    - https://attack.mitre.org/techniques/T1053/003/
+author: null.log
+date: 2025/12/08
+logsource:
+    product: linux
+    service: syslog
+detection:
+    selection:
+        program: 'cron'
+    suspicious:
+        message|contains:
+            - '/tmp/'
+            - '/dev/shm/'
+            - 'curl'
+            - 'wget'
+            - 'nc '
+            - '/dev/tcp/'
+            - 'bash -i'
+    condition: selection and suspicious
+fields:
+    - message
+    - user
+falsepositives:
+    - Legitimate automation scripts
+level: high
+tags:
+    - attack.persistence
+    - attack.t1053.003
+explanation:
+    simple: "A suspicious scheduled task was added to cron - malware might be set to auto-run"
+    technical: "Cron job with suspicious patterns detected, often used for persistence or data exfiltration"
+    remediation: "Check crontab files (/etc/crontab, /var/spool/cron/). Remove unauthorized entries."
+    learning: "https://nullsector.dev/linux-persistence"
