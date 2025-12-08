@@ -53,18 +53,30 @@
 
 ## ⚡ Quick Start (5 Minutes)
 
-### Step 1: Download
+### Step 1: Install
 
 **Windows:**
 ```powershell
-# Download the latest release from GitHub
-# Or build from source (see below)
+# Clone the repo
+git clone https://github.com/4fqr/null-logs.git
+cd null-logs
+
+# Build it (requires Go 1.21+)
+go build -ldflags="-s -w" -o bin/null-log.exe cmd/null-log/main.go
+
+# Or use the installer script
+.\scripts\install.ps1
 ```
 
 **Linux/macOS:**
 ```bash
-curl -sSL https://github.com/4fqr/null-logs/releases/latest/download/null-log-linux-amd64 -o null-log
-chmod +x null-log
+# Clone the repo
+git clone https://github.com/4fqr/null-logs.git
+cd null-logs
+
+# Run the installer
+chmod +x scripts/install.sh
+sudo ./scripts/install.sh
 ```
 
 ### Step 2: Run It!
@@ -120,34 +132,43 @@ Events: 1,247 | Threats: 2 | Active Sources: 3 | [Q] Quit
 
 ## 🚀 Installation
 
-### Option 1: Download Pre-Built Binary (Easiest)
+### Requirements
 
-Go to [Releases](https://github.com/4fqr/null-logs/releases) and download for your OS:
-- `null-log-windows-amd64.exe` - Windows
-- `null-log-linux-amd64` - Linux
-- `null-log-darwin-arm64` - macOS (M1/M2)
-- `null-log-darwin-amd64` - macOS (Intel)
+- **Go 1.21+** ([Download here](https://go.dev/dl/))
+- **Administrator/Root privileges** (needed to read system logs)
 
-**No installation needed!** Just run it.
+### Windows Installation
 
-### Option 2: Build from Source (For Developers)
-
-**Requirements:**
-- Go 1.21 or higher ([Download here](https://go.dev/dl/))
-
-**Steps:**
-```bash
-# Clone the repository
+```powershell
+# Step 1: Clone the repository
 git clone https://github.com/4fqr/null-logs.git
 cd null-logs
 
-# Install dependencies
-go mod tidy
+# Step 2: Build the binary
+go build -ldflags="-s -w" -o bin\null-log.exe cmd\null-log\main.go
 
-# Build
-go build -o null-log cmd/null-log/main.go
+# Step 3: Run it (as Administrator)
+.\bin\null-log.exe --help
+```
 
-# Run
+**Quick Install Script:**
+```powershell
+# Run the automated installer
+.\scripts\install.ps1
+```
+
+### Linux/macOS Installation
+
+```bash
+# Step 1: Clone the repository
+git clone https://github.com/4fqr/null-logs.git
+cd null-logs
+
+# Step 2: Run the installer (builds and installs to /usr/local/bin)
+chmod +x scripts/install.sh
+sudo ./scripts/install.sh
+
+# Step 3: Run
 ./null-log --help
 ```
 
