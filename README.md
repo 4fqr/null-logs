@@ -36,6 +36,7 @@
 - 🔒 **Completely private** - No internet connection, no data collection, everything stays on your machine
 - 💪 **Professional-grade** - Uses the same detection rules that Fortune 500 companies use
 - 🚀 **Works instantly** - One file, no installation, runs on Windows/Linux/macOS
+- 🔴 **Detects real attacks** - Nmap scans, port scans, SYN floods, reverse shells, C2 beaconing
 
 ---
 
@@ -220,28 +221,57 @@ null-log hunt linux_susp_ssh
 
 ---
 
-### 3. `net` - Network Connections
-**What it does:** Shows all active internet connections from your computer.
+### 3. `net` - Network Connections & Threat Detection
+**What it does:** Shows all active internet connections AND detects active network attacks in real-time.
 
 ```bash
 null-log net
+null-log net -v    # verbose mode for more details
 ```
 
 **When to use:**
 - ✅ You want to see what programs are connecting to the internet
 - ✅ You suspect malware is "phoning home"
-- ✅ You're curious what connections are normal
+- ✅ Someone might be scanning your network
+- ✅ You want to detect nmap, port scans, or DDoS attacks
 
 **What you'll see:**
 ```
+═══════════════════════════════════════════════════════════
+🚨 THREAT DETECTIONS
+═══════════════════════════════════════════════════════════
+
+🔴 [CRITICAL] Nmap Scan
+   Source: 192.168.1.100
+   Nmap-style port scan detected - scanning 45 ports
+   
+🟠 [HIGH] Port Scan
+   Source: 10.0.0.50
+   Possible port scan detected - 87 connections to 12 different ports
+   
+🔴 [CRITICAL] Reverse Shell
+   Source: 45.142.212.61
+   Possible reverse shell: cmd.exe connecting to 45.142.212.61:4444
+
+═══════════════════════════════════════════════════════════
+
 ┌──────────────────┬─────────────────┬──────────┬───────────┐
 │ PROCESS          │ REMOTE          │ PORT     │ STATUS    │
 ├──────────────────┼─────────────────┼──────────┼───────────┤
 │ chrome.exe       │ 142.250.80.46   │ 443      │ SAFE      │
 │ svchost.exe      │ 20.42.65.88     │ 443      │ SAFE      │
-│ unknown.exe      │ 45.142.212.61   │ 4444     │ SUSPICIOUS│
+│ cmd.exe          │ 45.142.212.61   │ 4444     │ SUSPICIOUS│
 └──────────────────┴─────────────────┴──────────┴───────────┘
+
+📊 Summary: 156 connections | 3 threats detected
 ```
+
+**Detects:**
+- 🎯 **Nmap scans** - Sequential port scanning patterns
+- 🎯 **Port scans** - Multiple connection attempts to different ports
+- 🎯 **SYN floods** - DDoS attacks trying to crash your server
+- 🎯 **Reverse shells** - Backdoor connections to attacker servers
+- 🎯 **C2 beaconing** - Regular callbacks to command & control servers
 
 ---
 
