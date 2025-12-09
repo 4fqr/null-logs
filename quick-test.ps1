@@ -34,18 +34,14 @@ if ($helpOutput -match "null.log") {
 
 Write-Host "`n[4/5] Testing network scan..."
 Write-Host "Running: .\bin\null-log.exe net" -ForegroundColor Cyan
-try {
-    $netOutput = .\bin\null-log.exe net 2>&1 | Out-String
-    if ($netOutput -match "connections|PROCESS|scanning") {
-        Write-Host "✓ Network scanner works" -ForegroundColor Green
-        Write-Host "`nSample output:"
-        Write-Host $netOutput.Substring(0, [Math]::Min(500, $netOutput.Length))
-    } else {
-        Write-Host "✗ Network scanner produced unexpected output" -ForegroundColor Yellow
-        Write-Host $netOutput
-    }
-} catch {
-    Write-Host "✗ Network scanner failed: $_" -ForegroundColor Red
+$netOutput = .\bin\null-log.exe net 2>&1 | Out-String
+if ($netOutput -match "connections|PROCESS|scanning") {
+    Write-Host "✓ Network scanner works" -ForegroundColor Green
+    Write-Host "`nSample output:"
+    Write-Host $netOutput.Substring(0, [Math]::Min(500, $netOutput.Length))
+} else {
+    Write-Host "✗ Network scanner output:" -ForegroundColor Yellow
+    Write-Host $netOutput
 }
 
 Write-Host "`n[5/5] Summary"
