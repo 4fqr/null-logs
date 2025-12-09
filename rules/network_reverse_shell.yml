@@ -1,0 +1,86 @@
+id: network_reverse_shell
+title: Reverse Shell Connection Detected
+description: Detects outbound connections characteristic of reverse shell backdoors
+author: null.log
+date: 2025/12/09
+level: critical
+status: stable
+logsource:
+  product: network
+  category: netflow
+detection:
+  selection:
+    - outbound connection to non-standard high ports (4444-9999)
+    - connection from unusual process (cmd.exe, powershell.exe, bash, sh)
+    - persistent connection to single external IP
+  condition: selection
+falsepositives:
+  - Legitimate remote management tools
+  - VPN connections
+  - Game servers
+  - Custom applications
+tags:
+  - attack.command_and_control
+  - attack.t1071
+  - attack.persistence
+  - attack.t1059
+x_summary: "CRITICAL: Reverse shell detected - attacker has remote command execution on your system!"
+x_technical: |
+  A reverse shell is a backdoor that connects OUT from your compromised system to an attacker's server.
+  
+  Why reverse shells exist:
+  - Bypass inbound firewall rules (outbound usually allowed)
+  - Evade NAT/firewall restrictions
+  - Maintain persistent remote access
+  - Execute commands from attacker's machine
+  
+  Common indicators:
+  - cmd.exe or powershell.exe making network connections
+  - Connections to ports 4444, 4445, 5555, 6666, 7777, 8888, 9999
+  - Unknown processes connecting to external IPs
+  - Netcat, socat, or similar tools running
+  
+  Popular reverse shell tools:
+  - Metasploit (port 4444 default)
+  - Netcat
+  - PowerShell Empire
+  - Cobalt Strike beacons
+  - Python/Perl/Bash reverse shells
+x_remediation: |
+  ⚠️ SYSTEM COMPROMISED - ACT IMMEDIATELY ⚠️
+  
+  EMERGENCY RESPONSE:
+  1. DISCONNECT system from network NOW (pull ethernet cable)
+  2. Do NOT shut down - preserve memory for forensics
+  3. Take memory dump if possible
+  4. Block attacker IP at network perimeter
+  5. Kill the malicious process if system critical:
+     Windows: taskkill /F /PID <pid>
+     Linux: kill -9 <pid>
+  
+  INVESTIGATION:
+  1. Identify how initial compromise occurred
+  2. Check for persistence mechanisms:
+     - Scheduled tasks
+     - Registry run keys
+     - Services
+     - Startup folders
+  3. Review all recent file modifications
+  4. Check for lateral movement to other systems
+  5. Audit all user accounts for unauthorized access
+  
+  RECOVERY:
+  1. Wipe and rebuild system from clean backup
+  2. Change all passwords used on compromised system
+  3. Revoke and reissue certificates if present
+  4. Notify security team/incident response
+  5. Review logs for data exfiltration
+  
+  PREVENTION:
+  1. Implement application whitelisting
+  2. Block outbound connections from script interpreters
+  3. Use egress filtering (block unusual outbound ports)
+  4. Deploy EDR solution
+  5. Enable PowerShell logging and script block logging
+  6. Harden PowerShell execution policies
+x_learning_link: "https://attack.mitre.org/techniques/T1059/"

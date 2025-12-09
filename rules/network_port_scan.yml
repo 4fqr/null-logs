@@ -1,0 +1,39 @@
+id: network_port_scan
+title: Port Scanning Activity Detected
+description: Detects port scanning attempts from external or internal sources
+author: null.log
+date: 2025/12/09
+level: high
+status: stable
+logsource:
+  product: network
+  category: firewall
+detection:
+  selection:
+    - multiple connections to different ports from same IP
+    - connection attempts > 10 ports within 60 seconds
+  condition: selection
+falsepositives:
+  - Network monitoring tools
+  - Security scanners (authorized)
+  - Load balancers
+tags:
+  - attack.discovery
+  - attack.t1046
+  - attack.reconnaissance
+x_summary: "Someone is scanning your network ports - could be reconnaissance for an attack"
+x_technical: |
+  Detected multiple connection attempts to different ports from a single source IP address.
+  This is characteristic of port scanning tools like nmap, masscan, or automated vulnerability scanners.
+  
+  Port scanning is typically the first phase of an attack where an attacker maps your network
+  to identify open services and potential entry points.
+x_remediation: |
+  1. Identify the source IP address
+  2. Check if it's from your internal network (compromised host) or external
+  3. Block the IP at your firewall if external
+  4. If internal, isolate the host and investigate for compromise
+  5. Review firewall logs for successful connections
+  6. Enable rate limiting on your firewall
+  7. Consider implementing IPS/IDS if not already in place
+x_learning_link: "https://attack.mitre.org/techniques/T1046/"

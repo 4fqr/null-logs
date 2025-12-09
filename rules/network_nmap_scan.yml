@@ -1,0 +1,62 @@
+id: network_nmap_scan
+title: Nmap Network Scan Detected
+description: Detects characteristic patterns of nmap network scanning tool
+author: null.log
+date: 2025/12/09
+level: critical
+status: stable
+logsource:
+  product: network
+  category: netflow
+detection:
+  selection:
+    - sequential port scanning pattern
+    - SYN packets to common service ports (21,22,23,25,80,443,445,3389)
+    - scan signatures matching nmap fingerprints
+  condition: selection
+falsepositives:
+  - Authorized penetration testing
+  - Network security audits
+  - Vulnerability assessment tools
+tags:
+  - attack.discovery
+  - attack.t1046
+  - attack.reconnaissance
+  - tool.nmap
+x_summary: "Nmap scanning tool detected - someone is actively mapping your network infrastructure"
+x_technical: |
+  Nmap is the most popular network scanning tool used by both security professionals and attackers.
+  
+  Detection indicators:
+  - Sequential or randomized port probing
+  - SYN scans (half-open connections)
+  - OS fingerprinting attempts
+  - Service version detection queries
+  - Script scanning patterns
+  
+  Nmap can identify:
+  - Open ports and services
+  - Operating system versions
+  - Application versions
+  - Network topology
+  - Security misconfigurations
+x_remediation: |
+  IMMEDIATE ACTIONS:
+  1. Identify source IP immediately
+  2. Block at firewall if external threat
+  3. If internal IP, disconnect from network NOW
+  4. Check logs for any successful connections post-scan
+  
+  INVESTIGATION:
+  1. Review all firewall/IDS logs from the source IP
+  2. Check for any lateral movement if internal
+  3. Verify no credentials were compromised
+  4. Look for follow-up exploit attempts
+  
+  PREVENTION:
+  1. Implement proper network segmentation
+  2. Deploy IPS with nmap signatures
+  3. Enable SYN flood protection
+  4. Use port knocking for sensitive services
+  5. Monitor for reconnaissance phase of kill chain
+x_learning_link: "https://nmap.org/book/man.html"

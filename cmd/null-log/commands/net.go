@@ -49,6 +49,40 @@ func runNet(cmd *cobra.Command, args []string) error {
 	}
 
 	fmt.Printf("Found %d active connections\n\n", len(connections))
+	
+	// THREAT DETECTION - Analyze for attacks
+	threats := scanner.DetectThreats(connections)
+	
+	if len(threats) > 0 {
+		fmt.Println("═══════════════════════════════════════════════════════════")
+		fmt.Println("🚨 THREAT DETECTIONS")
+		fmt.Println("═══════════════════════════════════════════════════════════\n")
+		
+		for _, threat := range threats {
+			var icon string
+			switch threat.Severity {
+			case "CRITICAL":
+				icon = "🔴"
+			case "HIGH":
+				icon = "🟠"
+			default:
+				icon = "🟡"
+			}
+			
+			fmt.Printf("%s [%s] %s\n", icon, threat.Severity, threat.Type)
+			fmt.Printf("   Source: %s\n", threat.Source)
+			fmt.Printf("   %s\n", threat.Description)
+			if verbose {
+				fmt.Printf("   Evidence: %s\n", threat.Evidence)
+			}
+			fmt.Println()
+		}
+		
+		fmt.Println("═══════════════════════════════════════════════════════════\n")
+	} else {
+		fmt.Println("✅ No immediate threats detected\n")
+	}
+	
 	fmt.Println(ui.FormatNetworkTable(connections))
 
 	if verbose {
@@ -63,17 +97,11 @@ func runNet(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	// Highlight suspicious connections
-	suspiciousCount := 0
-	for _, conn := range connections {
-		if len(conn.Tags) > 0 {
-			suspiciousCount++
-		}
-	}
-
-	if suspiciousCount > 0 {
-		fmt.Printf("\n⚠️  Found %d suspicious connections!\n", suspiciousCount)
-		fmt.Println("Run 'null.log live' for real-time threat detection")
+	// Summary
+	fmt.Printf("\n📊 Summary: %d connections | %d threats detected\n", len(connections), len(threats))
+	if len(threats) > 0 {
+		fmt.Println("\n💡 Tip: Run 'null-log live' for real-time monitoring")
+		fmt.Println("💡 Tip: Use --verbose (-v) flag for more details")
 	}
 
 	return nil

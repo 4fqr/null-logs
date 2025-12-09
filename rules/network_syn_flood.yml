@@ -1,0 +1,63 @@
+id: network_syn_flood
+title: SYN Flood Attack Detected
+description: Detects SYN flood DDoS attacks attempting to exhaust server resources
+author: null.log
+date: 2025/12/09
+level: critical
+status: stable
+logsource:
+  product: network
+  category: firewall
+detection:
+  selection:
+    - high volume of SYN packets to same port
+    - > 50 SYN packets per second
+    - no corresponding ACK packets (incomplete handshakes)
+  condition: selection
+falsepositives:
+  - Legitimate high-traffic scenarios
+  - Load testing
+  - Network congestion
+tags:
+  - attack.impact
+  - attack.t1499.002
+  - attack.dos
+x_summary: "SYN flood attack in progress - attacker trying to crash your server by overwhelming it with connection requests"
+x_technical: |
+  SYN flood is a type of Denial of Service (DoS) attack that exploits the TCP three-way handshake.
+  
+  How it works:
+  1. Attacker sends massive amounts of SYN packets
+  2. Server responds with SYN-ACK and allocates resources
+  3. Attacker never sends final ACK
+  4. Server resources exhausted waiting for completion
+  5. Legitimate users cannot connect
+  
+  Characteristics:
+  - Thousands of half-open connections
+  - Source IPs often spoofed
+  - Targets single port (usually web server)
+  - Can crash server or saturate bandwidth
+x_remediation: |
+  IMMEDIATE ACTIONS:
+  1. Enable SYN cookies on affected server immediately
+     Linux: sysctl -w net.ipv4.tcp_syncookies=1
+     Windows: netsh int tcp set global syncprotection=enabled
+  2. Implement rate limiting at firewall
+  3. Contact ISP if attack is overwhelming bandwidth
+  4. Consider enabling DDoS protection service
+  
+  MITIGATION:
+  1. Reduce SYN timeout values
+  2. Increase backlog queue size
+  3. Deploy anti-DDoS appliance
+  4. Use cloud-based DDoS protection (Cloudflare, AWS Shield)
+  5. Implement connection rate limiting
+  6. Consider switching to SYN proxying
+  
+  PREVENTION:
+  1. Always enable SYN cookies in production
+  2. Tune TCP stack parameters
+  3. Monitor connection states continuously
+  4. Have DDoS response plan ready
+x_learning_link: "https://attack.mitre.org/techniques/T1499/002/"
