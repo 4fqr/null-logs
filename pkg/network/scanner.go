@@ -55,7 +55,7 @@ func (s *Scanner) GetActiveConnections() ([]*models.NetworkConnection, error) {
 func (s *Scanner) getWindowsConnections() ([]*models.NetworkConnection, error) {
 	cmd := exec.Command("powershell", "-Command",
 		"Get-NetTCPConnection | Select-Object LocalAddress,LocalPort,RemoteAddress,RemotePort,State,OwningProcess | ConvertTo-Json")
-	
+
 	output, err := cmd.Output()
 	if err != nil {
 		// Fallback to netstat
@@ -358,12 +358,12 @@ func (s *Scanner) DetectThreats(connections []*models.NetworkConnection) []Threa
 	for ip, stats := range ipStats {
 		if len(stats.Ports) > 10 && stats.ConnectionCount > 20 {
 			threats = append(threats, ThreatDetection{
-				Type:        "Port Scan",
-				Severity:    "HIGH",
-				Source:      ip,
-				Description: fmt.Sprintf("Possible port scan detected from %s - %d connections to %d different ports", ip, stats.ConnectionCount, len(stats.Ports)),
+				Type:         "Port Scan",
+				Severity:     "HIGH",
+				Source:       ip,
+				Description:  fmt.Sprintf("Possible port scan detected from %s - %d connections to %d different ports", ip, stats.ConnectionCount, len(stats.Ports)),
 				PortsScanned: len(stats.Ports),
-				Evidence:    fmt.Sprintf("Connections: %d, Unique ports: %d", stats.ConnectionCount, len(stats.Ports)),
+				Evidence:     fmt.Sprintf("Connections: %d, Unique ports: %d", stats.ConnectionCount, len(stats.Ports)),
 			})
 		}
 	}
@@ -375,16 +375,16 @@ func (s *Scanner) DetectThreats(connections []*models.NetworkConnection) []Threa
 			for port := range stats.Ports {
 				portList = append(portList, port)
 			}
-			
+
 			// Check if ports are sequential or common scan patterns
 			if s.isSequentialPorts(portList) || s.isCommonScanPattern(portList) {
 				threats = append(threats, ThreatDetection{
-					Type:        "Nmap Scan",
-					Severity:    "CRITICAL",
-					Source:      ip,
-					Description: fmt.Sprintf("Nmap-style port scan detected from %s - scanning %d ports", ip, len(stats.Ports)),
+					Type:         "Nmap Scan",
+					Severity:     "CRITICAL",
+					Source:       ip,
+					Description:  fmt.Sprintf("Nmap-style port scan detected from %s - scanning %d ports", ip, len(stats.Ports)),
 					PortsScanned: len(stats.Ports),
-					Evidence:    fmt.Sprintf("Sequential/pattern-based scan detected on ports: %v", portList),
+					Evidence:     fmt.Sprintf("Sequential/pattern-based scan detected on ports: %v", portList),
 				})
 			}
 		}
@@ -395,12 +395,12 @@ func (s *Scanner) DetectThreats(connections []*models.NetworkConnection) []Threa
 		for port, count := range stats.Ports {
 			if count > 50 {
 				threats = append(threats, ThreatDetection{
-					Type:        "SYN Flood",
-					Severity:    "CRITICAL",
-					Source:      ip,
-					Description: fmt.Sprintf("Possible SYN flood attack from %s to port %d - %d connections", ip, port, count),
+					Type:         "SYN Flood",
+					Severity:     "CRITICAL",
+					Source:       ip,
+					Description:  fmt.Sprintf("Possible SYN flood attack from %s to port %d - %d connections", ip, port, count),
 					PortsScanned: 1,
-					Evidence:    fmt.Sprintf("%d rapid connections to port %d", count, port),
+					Evidence:     fmt.Sprintf("%d rapid connections to port %d", count, port),
 				})
 			}
 		}
@@ -410,12 +410,12 @@ func (s *Scanner) DetectThreats(connections []*models.NetworkConnection) []Threa
 	for procKey, stats := range processStats {
 		if len(stats.RemoteIPs) > 20 {
 			threats = append(threats, ThreatDetection{
-				Type:        "Suspicious Process",
-				Severity:    "HIGH",
-				Source:      procKey,
-				Description: fmt.Sprintf("Process %s connecting to %d different IPs - possible C2 or scanning", procKey, len(stats.RemoteIPs)),
+				Type:         "Suspicious Process",
+				Severity:     "HIGH",
+				Source:       procKey,
+				Description:  fmt.Sprintf("Process %s connecting to %d different IPs - possible C2 or scanning", procKey, len(stats.RemoteIPs)),
 				PortsScanned: len(stats.Ports),
-				Evidence:    fmt.Sprintf("Connections to %d unique IPs, %d unique ports", len(stats.RemoteIPs), len(stats.Ports)),
+				Evidence:     fmt.Sprintf("Connections to %d unique IPs, %d unique ports", len(stats.RemoteIPs), len(stats.Ports)),
 			})
 		}
 	}
@@ -425,12 +425,12 @@ func (s *Scanner) DetectThreats(connections []*models.NetworkConnection) []Threa
 		if conn.RemotePort >= 4444 && conn.RemotePort <= 9999 && !s.isCommonPort(conn.RemotePort) {
 			if !s.isPrivateIP(conn.RemoteAddr) {
 				threats = append(threats, ThreatDetection{
-					Type:        "Reverse Shell",
-					Severity:    "CRITICAL",
-					Source:      conn.RemoteAddr,
-					Description: fmt.Sprintf("Possible reverse shell: %s connecting to %s:%d", conn.ProcessName, conn.RemoteAddr, conn.RemotePort),
+					Type:         "Reverse Shell",
+					Severity:     "CRITICAL",
+					Source:       conn.RemoteAddr,
+					Description:  fmt.Sprintf("Possible reverse shell: %s connecting to %s:%d", conn.ProcessName, conn.RemoteAddr, conn.RemotePort),
 					PortsScanned: 1,
-					Evidence:    fmt.Sprintf("Process: %s (PID: %d), Remote: %s:%d", conn.ProcessName, conn.PID, conn.RemoteAddr, conn.RemotePort),
+					Evidence:     fmt.Sprintf("Process: %s (PID: %d), Remote: %s:%d", conn.ProcessName, conn.PID, conn.RemoteAddr, conn.RemotePort),
 				})
 			}
 		}
@@ -440,12 +440,12 @@ func (s *Scanner) DetectThreats(connections []*models.NetworkConnection) []Threa
 	for procKey, stats := range processStats {
 		if stats.ConnectionCount > 10 && len(stats.RemoteIPs) == 1 {
 			threats = append(threats, ThreatDetection{
-				Type:        "C2 Beaconing",
-				Severity:    "HIGH",
-				Source:      procKey,
-				Description: fmt.Sprintf("Regular beaconing pattern detected from %s - %d connections to single IP", procKey, stats.ConnectionCount),
+				Type:         "C2 Beaconing",
+				Severity:     "HIGH",
+				Source:       procKey,
+				Description:  fmt.Sprintf("Regular beaconing pattern detected from %s - %d connections to single IP", procKey, stats.ConnectionCount),
 				PortsScanned: 0,
-				Evidence:    fmt.Sprintf("%d periodic connections suggesting C2 callback", stats.ConnectionCount),
+				Evidence:     fmt.Sprintf("%d periodic connections suggesting C2 callback", stats.ConnectionCount),
 			})
 		}
 	}
@@ -468,7 +468,7 @@ func (s *Scanner) isSequentialPorts(ports []int) bool {
 	if len(ports) < 3 {
 		return false
 	}
-	
+
 	// Sort isn't imported but we can check gaps
 	sequential := 0
 	for i := 0; i < len(ports)-1; i++ {
@@ -479,7 +479,7 @@ func (s *Scanner) isSequentialPorts(ports []int) bool {
 			}
 		}
 	}
-	
+
 	return sequential > len(ports)/2
 }
 
@@ -487,7 +487,7 @@ func (s *Scanner) isSequentialPorts(ports []int) bool {
 func (s *Scanner) isCommonScanPattern(ports []int) bool {
 	commonPatterns := []int{21, 22, 23, 25, 80, 443, 445, 3389, 8080, 3306, 5432, 1433, 27017}
 	matches := 0
-	
+
 	for _, port := range ports {
 		for _, pattern := range commonPatterns {
 			if port == pattern {
@@ -496,7 +496,7 @@ func (s *Scanner) isCommonScanPattern(ports []int) bool {
 			}
 		}
 	}
-	
+
 	return matches >= 3
 }
 

@@ -49,15 +49,15 @@ func runNet(cmd *cobra.Command, args []string) error {
 	}
 
 	fmt.Printf("Found %d active connections\n\n", len(connections))
-	
+
 	// THREAT DETECTION - Analyze for attacks
 	threats := scanner.DetectThreats(connections)
-	
+
 	if len(threats) > 0 {
 		fmt.Println("═══════════════════════════════════════════════════════════")
 		fmt.Println("🚨 THREAT DETECTIONS")
 		fmt.Println("═══════════════════════════════════════════════════════════\n")
-		
+
 		for _, threat := range threats {
 			var icon string
 			switch threat.Severity {
@@ -68,7 +68,7 @@ func runNet(cmd *cobra.Command, args []string) error {
 			default:
 				icon = "🟡"
 			}
-			
+
 			fmt.Printf("%s [%s] %s\n", icon, threat.Severity, threat.Type)
 			fmt.Printf("   Source: %s\n", threat.Source)
 			fmt.Printf("   %s\n", threat.Description)
@@ -77,12 +77,12 @@ func runNet(cmd *cobra.Command, args []string) error {
 			}
 			fmt.Println()
 		}
-		
+
 		fmt.Println("═══════════════════════════════════════════════════════════\n")
 	} else {
 		fmt.Println("✅ No immediate threats detected\n")
 	}
-	
+
 	fmt.Println(ui.FormatNetworkTable(connections))
 
 	if verbose {

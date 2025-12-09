@@ -144,41 +144,52 @@ func runLive(cmd *cobra.Command, args []string) error {
 
 // getRulesDirectory returns the path to Sigma rules
 func getRulesDirectory() (string, error) {
-	// Try user config directory first
+	// Try multiple locations in order of priority
+	
+	// 1. Current working directory ./rules
+	cwd, _ := os.Getwd()
+	cwdRules := filepath.Join(cwd, "rules")
+	if _, err := os.Stat(cwdRules); err == nil {
+		entries, _ := os.ReadDir(cwdRules)
+		if len(entries) > 0 {
+			return cwdRules, nil
+		}
+	}
+	
+	// 2. Executable directory ./rules (for when binary is moved)
+	exePath, err := os.Executable()
+	if err == nil {
+		exeDir := filepath.Dir(exePath)
+		exeRules := filepath.Join(exeDir, "rules")
+		if _, err := os.Stat(exeRules); err == nil {
+			entries, _ := os.ReadDir(exeRules)
+			if len(entries) > 0 {
+				return exeRules, nil
+			}
+		}
+		
+		// 3. One level up from executable (for bin/null-log.exe case)
+		parentRules := filepath.Join(filepath.Dir(exeDir), "rules")
+		if _, err := os.Stat(parentRules); err == nil {
+			entries, _ := os.ReadDir(parentRules)
+			if len(entries) > 0 {
+				return parentRules, nil
+			}
+		}
+	}
+
+	// 4. User config directory
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to get home directory: %w", err)
 	}
 
 	userRulesDir := filepath.Join(homeDir, ".null.log", "rules")
-	
-	// Create if doesn't exist
 	if err := os.MkdirAll(userRulesDir, 0755); err != nil {
 		return "", err
 	}
 
-	// Check if bundled rules exist
-	if _, err := os.Stat(userRulesDir); err == nil {
-		entries, _ := os.ReadDir(userRulesDir)
-		if len(entries) > 0 {
-			return userRulesDir, nil
-		}
-	}
-
-	// Fall back to bundled rules (relative to executable)
-	exePath, err := os.Executable()
-	if err != nil {
-		return "", err
-	}
-
-	bundledRulesDir := filepath.Join(filepath.Dir(exePath), "rules")
-	
-	// If bundled rules don't exist, use user dir and we'll create defaults
-	if _, err := os.Stat(bundledRulesDir); os.IsNotExist(err) {
-		return userRulesDir, nil
-	}
-
-	return bundledRulesDir, nil
+	return userRulesDir, nil
 }
 
 // hasAcceptedDisclaimer checks if user has accepted the legal disclaimer

