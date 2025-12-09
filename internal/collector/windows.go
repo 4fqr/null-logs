@@ -51,50 +51,50 @@ func (w *WindowsEventCollector) Start(ctx context.Context, events chan<- *models
 		if username == "" {
 			username = "SYSTEM"
 		}
-		
+
 		// Wait a bit then generate attack events
 		time.Sleep(1 * time.Second)
-		
+
 		// 1. Suspicious PowerShell with bypass
 		events <- &models.Event{
-			ID:          "demo_attack_1",
-			Timestamp:   time.Now(),
-			Source:      "Security",
-			EventType:   "process_creation",
-			ProcessName: "powershell.exe",
-			ProcessID:   8472,
-			User:        username,
-			CommandLine: "powershell.exe -ExecutionPolicy Bypass -NoProfile -WindowStyle Hidden -EncodedCommand JABzAD0ATgBlAHcALQBPAGIAagBlAGMAdAAgAEkATwAuAE0AZQBtAG8AcgB5AFMAdAByAGUAYQBtACgALABbAEMAbwBuAHYAZQByAHQAXQA6ADoARgByAG8AbQBCAGEAcwBlADYANABTAHQAcgBpAG4AZwAoACIASAA0AHMASQBBAEEAQQBBAEEAQQBBAEEAQQBLADEAVgB5ADIALwBiAE0AQgBBAC8AdwA9ACIALQA=",
+			ID:            "demo_attack_1",
+			Timestamp:     time.Now(),
+			Source:        "Security",
+			EventType:     "process_creation",
+			ProcessName:   "powershell.exe",
+			ProcessID:     8472,
+			User:          username,
+			CommandLine:   "powershell.exe -ExecutionPolicy Bypass -NoProfile -WindowStyle Hidden -EncodedCommand JABzAD0ATgBlAHcALQBPAGIAagBlAGMAdAAgAEkATwAuAE0AZQBtAG8AcgB5AFMAdAByAGUAYQBtACgALABbAEMAbwBuAHYAZQByAHQAXQA6ADoARgByAG8AbQBCAGEAcwBlADYANABTAHQAcgBpAG4AZwAoACIASAA0AHMASQBBAEEAQQBBAEEAQQBBAEEAQQBLADEAVgB5ADIALwBiAE0AQgBBAC8AdwA9ACIALQA=",
 			ParentProcess: "explorer.exe",
-			RawLog:      "[SIMULATED] Malicious PowerShell detected - encoded payload execution",
+			RawLog:        "[SIMULATED] Malicious PowerShell detected - encoded payload execution",
 			Metadata: map[string]interface{}{
 				"EventID": 4688,
-				"image": "\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+				"image":   "\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
 			},
 		}
-		
+
 		time.Sleep(2 * time.Second)
-		
+
 		// 2. Mimikatz credential dumping attempt
 		events <- &models.Event{
-			ID:          "demo_attack_2",
-			Timestamp:   time.Now(),
-			Source:      "Security",
-			EventType:   "process_creation",
-			ProcessName: "rundll32.exe",
-			ProcessID:   5632,
-			User:        username,
-			CommandLine: "rundll32.exe C:\\Windows\\System32\\comsvcs.dll MiniDump 624 C:\\temp\\lsass.dmp full",
+			ID:            "demo_attack_2",
+			Timestamp:     time.Now(),
+			Source:        "Security",
+			EventType:     "process_creation",
+			ProcessName:   "rundll32.exe",
+			ProcessID:     5632,
+			User:          username,
+			CommandLine:   "rundll32.exe C:\\Windows\\System32\\comsvcs.dll MiniDump 624 C:\\temp\\lsass.dmp full",
 			ParentProcess: "cmd.exe",
-			RawLog:      "[SIMULATED] LSASS memory dump attempt - credential theft",
+			RawLog:        "[SIMULATED] LSASS memory dump attempt - credential theft",
 			Metadata: map[string]interface{}{
-				"EventID": 4688,
+				"EventID":        4688,
 				"TargetFilename": "lsass.dmp",
 			},
 		}
-		
+
 		time.Sleep(2 * time.Second)
-		
+
 		// 3. Registry persistence
 		events <- &models.Event{
 			ID:          "demo_attack_3",
@@ -107,34 +107,34 @@ func (w *WindowsEventCollector) Start(ctx context.Context, events chan<- *models
 			CommandLine: "reg add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v SecurityUpdate /t REG_SZ /d C:\\Windows\\Temp\\malware.exe /f",
 			RawLog:      "[SIMULATED] Malicious registry run key added for persistence",
 			Metadata: map[string]interface{}{
-				"EventID": 13,
+				"EventID":      13,
 				"TargetObject": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\SecurityUpdate",
-				"Details": "C:\\Windows\\Temp\\malware.exe",
+				"Details":      "C:\\Windows\\Temp\\malware.exe",
 			},
 		}
-		
+
 		time.Sleep(2 * time.Second)
-		
+
 		// 4. Suspicious scheduled task
 		events <- &models.Event{
-			ID:          "demo_attack_4",
-			Timestamp:   time.Now(),
-			Source:      "Security",
-			EventType:   "process_creation",
-			ProcessName: "schtasks.exe",
-			ProcessID:   7753,
-			User:        username,
-			CommandLine: "schtasks /create /tn WindowsUpdate /tr C:\\Users\\Public\\update.exe /sc minute /mo 5 /ru SYSTEM",
+			ID:            "demo_attack_4",
+			Timestamp:     time.Now(),
+			Source:        "Security",
+			EventType:     "process_creation",
+			ProcessName:   "schtasks.exe",
+			ProcessID:     7753,
+			User:          username,
+			CommandLine:   "schtasks /create /tn WindowsUpdate /tr C:\\Users\\Public\\update.exe /sc minute /mo 5 /ru SYSTEM",
 			ParentProcess: "powershell.exe",
-			RawLog:      "[SIMULATED] Suspicious scheduled task created for persistence",
+			RawLog:        "[SIMULATED] Suspicious scheduled task created for persistence",
 			Metadata: map[string]interface{}{
-				"EventID": 4698,
+				"EventID":  4698,
 				"TaskName": "\\WindowsUpdate",
 			},
 		}
-		
+
 		time.Sleep(3 * time.Second)
-		
+
 		// 5. Windows Defender disabled
 		events <- &models.Event{
 			ID:          "demo_attack_5",
@@ -148,12 +148,12 @@ func (w *WindowsEventCollector) Start(ctx context.Context, events chan<- *models
 			RawLog:      "[SIMULATED] Windows Defender real-time protection disabled",
 			Metadata: map[string]interface{}{
 				"EventID": 5001,
-				"Action": "disabled",
+				"Action":  "disabled",
 			},
 		}
-		
+
 		time.Sleep(2 * time.Second)
-		
+
 		// 6. Suspicious service creation
 		events <- &models.Event{
 			ID:          "demo_attack_6",
@@ -166,14 +166,14 @@ func (w *WindowsEventCollector) Start(ctx context.Context, events chan<- *models
 			CommandLine: "sc create WindowsUpdateService binPath= C:\\ProgramData\\svchost.exe start= auto",
 			RawLog:      "[SIMULATED] Suspicious service created with svchost name",
 			Metadata: map[string]interface{}{
-				"EventID": 7045,
+				"EventID":     7045,
 				"ServiceName": "WindowsUpdateService",
-				"ImagePath": "C:\\ProgramData\\svchost.exe",
+				"ImagePath":   "C:\\ProgramData\\svchost.exe",
 			},
 		}
-		
+
 		time.Sleep(2 * time.Second)
-		
+
 		// 7. Suspicious driver load
 		events <- &models.Event{
 			ID:          "demo_attack_7",
@@ -186,32 +186,32 @@ func (w *WindowsEventCollector) Start(ctx context.Context, events chan<- *models
 			CommandLine: "",
 			RawLog:      "[SIMULATED] Unsigned kernel driver loaded - possible rootkit",
 			Metadata: map[string]interface{}{
-				"EventID": 6,
+				"EventID":     6,
 				"ImageLoaded": "\\??\\C:\\Windows\\System32\\drivers\\rtcore64.sys",
-				"Signed": "false",
+				"Signed":      "false",
 			},
 		}
-		
+
 		time.Sleep(3 * time.Second)
-		
+
 		// 8. WMI persistence
 		events <- &models.Event{
-			ID:          "demo_attack_8",
-			Timestamp:   time.Now(),
-			Source:      "Security",
-			EventType:   "wmi_event",
-			ProcessName: "wmic.exe",
-			ProcessID:   3358,
-			User:        username,
-			CommandLine: "wmic /NAMESPACE:\\\\root\\subscription PATH __EventFilter CREATE Name=\"BotFilter\", EventNameSpace=\"root\\cimv2\",QueryLanguage=\"WQL\", Query=\"SELECT * FROM __InstanceModificationEvent WITHIN 60 WHERE TargetInstance ISA 'Win32_PerfFormattedData_PerfOS_System'\"",
+			ID:            "demo_attack_8",
+			Timestamp:     time.Now(),
+			Source:        "Security",
+			EventType:     "wmi_event",
+			ProcessName:   "wmic.exe",
+			ProcessID:     3358,
+			User:          username,
+			CommandLine:   "wmic /NAMESPACE:\\\\root\\subscription PATH __EventFilter CREATE Name=\"BotFilter\", EventNameSpace=\"root\\cimv2\",QueryLanguage=\"WQL\", Query=\"SELECT * FROM __InstanceModificationEvent WITHIN 60 WHERE TargetInstance ISA 'Win32_PerfFormattedData_PerfOS_System'\"",
 			ParentProcess: "powershell.exe",
-			RawLog:      "[SIMULATED] WMI event subscription created for persistence",
+			RawLog:        "[SIMULATED] WMI event subscription created for persistence",
 			Metadata: map[string]interface{}{
-				"EventID": 19,
+				"EventID":        19,
 				"EventNamespace": "root\\subscription",
 			},
 		}
-		
+
 		// Continuous monitoring message
 		time.Sleep(5 * time.Second)
 		events <- &models.Event{

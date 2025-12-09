@@ -42,7 +42,38 @@ darwin:
 dev:
 	@echo "Building for current platform..."
 	go build $(BUILD_FLAGS) -o $(BINARY) $(MAIN)
-	@echo "✓ Development build complete"
+	@echo "✓ Development build complete: ./$(BINARY)"
+
+# Quick build (no optimization)
+quick:
+	@echo "Quick build (debug mode)..."
+	go build -o $(BINARY) $(MAIN)
+	@echo "✓ Build complete: ./$(BINARY)"
+
+# Install to system
+install: dev
+	@echo "Installing null-log..."
+	@if [ -w /usr/local/bin ]; then \
+		cp $(BINARY) /usr/local/bin/$(BINARY); \
+		chmod +x /usr/local/bin/$(BINARY); \
+		echo "✓ Installed to /usr/local/bin/$(BINARY)"; \
+	else \
+		mkdir -p $(HOME)/.local/bin; \
+		cp $(BINARY) $(HOME)/.local/bin/$(BINARY); \
+		chmod +x $(HOME)/.local/bin/$(BINARY); \
+		echo "✓ Installed to $(HOME)/.local/bin/$(BINARY)"; \
+		echo "⚠  Add to PATH: export PATH=\"\$$HOME/.local/bin:\$$PATH\""; \
+	fi
+	@mkdir -p $(HOME)/.null.log/rules
+	@cp -r rules/* $(HOME)/.null.log/rules/ 2>/dev/null || true
+	@echo "✓ Rules installed to $(HOME)/.null.log/rules"
+
+# Uninstall
+uninstall:
+	@echo "Uninstalling null-log..."
+	@rm -f /usr/local/bin/$(BINARY)
+	@rm -f $(HOME)/.local/bin/$(BINARY)
+	@echo "✓ Uninstalled (config kept at $(HOME)/.null.log)"
 
 # Run tests
 test:

@@ -112,7 +112,7 @@ func (e *Engine) matchLogsource(logsource map[string]string, event *models.Event
 		product = strings.ToLower(product)
 		source := strings.ToLower(event.Source)
 		eventType := strings.ToLower(event.EventType)
-		
+
 		// Windows events can come from Security, System, Application logs
 		if product == "windows" {
 			windowsSources := []string{"security", "system", "application", "microsoft-windows", "windows"}
@@ -169,14 +169,14 @@ func (e *Engine) matchSelection(selection map[string]interface{}, event *models.
 			fieldName = parts[0]
 			modifier = strings.ToLower(parts[1])
 		}
-		
+
 		fieldValue := e.getEventField(fieldName, event)
 		if fieldValue == "" {
 			continue
 		}
 
 		matched := false
-		
+
 		// Handle different value types
 		switch v := value.(type) {
 		case string:
@@ -192,7 +192,7 @@ func (e *Engine) matchSelection(selection map[string]interface{}, event *models.
 				}
 			}
 		}
-		
+
 		if matched {
 			matchCount++
 		}
@@ -206,7 +206,7 @@ func (e *Engine) matchSelection(selection map[string]interface{}, event *models.
 func (e *Engine) matchWithModifier(pattern, fieldValue, modifier string) bool {
 	pattern = strings.ToLower(pattern)
 	fieldValue = strings.ToLower(fieldValue)
-	
+
 	switch modifier {
 	case "contains":
 		return strings.Contains(fieldValue, pattern)
