@@ -71,14 +71,17 @@ go build -ldflags="-s -w" -o bin/null-log.exe cmd/null-log/main.go
 
 **Linux/macOS:**
 ```bash
-# Clone the repo
+# Clone and install (one command)
 git clone https://github.com/4fqr/null-logs.git
 cd null-logs
+sudo make install
 
-# Run the installer
+# OR use the install script
 chmod +x scripts/install.sh
 sudo ./scripts/install.sh
 ```
+
+**📖 Linux users:** See [LINUX_SETUP.md](LINUX_SETUP.md) for detailed instructions
 
 ### Step 2: Run It!
 
