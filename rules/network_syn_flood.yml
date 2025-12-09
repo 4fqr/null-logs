@@ -10,9 +10,8 @@ logsource:
   category: firewall
 detection:
   selection:
-    - high volume of SYN packets to same port
-    - > 50 SYN packets per second
-    - no corresponding ACK packets (incomplete handshakes)
+    destination_port: 443
+    syn_count: '>50'
   condition: selection
 falsepositives:
   - Legitimate high-traffic scenarios

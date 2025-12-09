@@ -67,7 +67,7 @@ func runLive(cmd *cobra.Command, args []string) error {
 
 	// Initialize collectors
 	collectorMgr := collector.NewManager()
-	
+
 	// Register platform-specific collectors
 	switch runtime.GOOS {
 	case "windows":
@@ -81,7 +81,7 @@ func runLive(cmd *cobra.Command, args []string) error {
 
 	activeCollectors := collectorMgr.GetActiveCollectors()
 	fmt.Printf("Active collectors: %v\n", activeCollectors)
-	
+
 	if len(activeCollectors) == 0 {
 		return fmt.Errorf("no log collectors available on this system")
 	}
@@ -121,7 +121,7 @@ func runLive(cmd *cobra.Command, args []string) error {
 					if detection.Severity == "CRITICAL" {
 						criticalCount++
 					}
-					
+
 					// Send to UI
 					p.Send(detection)
 				}
@@ -145,7 +145,7 @@ func runLive(cmd *cobra.Command, args []string) error {
 // getRulesDirectory returns the path to Sigma rules
 func getRulesDirectory() (string, error) {
 	// Try multiple locations in order of priority
-	
+
 	// 1. Current working directory ./rules
 	cwd, _ := os.Getwd()
 	cwdRules := filepath.Join(cwd, "rules")
@@ -155,7 +155,7 @@ func getRulesDirectory() (string, error) {
 			return cwdRules, nil
 		}
 	}
-	
+
 	// 2. Executable directory ./rules (for when binary is moved)
 	exePath, err := os.Executable()
 	if err == nil {
@@ -167,7 +167,7 @@ func getRulesDirectory() (string, error) {
 				return exeRules, nil
 			}
 		}
-		
+
 		// 3. One level up from executable (for bin/null-log.exe case)
 		parentRules := filepath.Join(filepath.Dir(exeDir), "rules")
 		if _, err := os.Stat(parentRules); err == nil {

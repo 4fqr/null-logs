@@ -109,8 +109,40 @@ func (e *Engine) matchLogsource(logsource map[string]string, event *models.Event
 
 	// Check product (windows, linux, macos)
 	if product, ok := logsource["product"]; ok {
-		if !strings.Contains(strings.ToLower(event.Source), strings.ToLower(product)) {
-			return false
+		product = strings.ToLower(product)
+		source := strings.ToLower(event.Source)
+		eventType := strings.ToLower(event.EventType)
+		
+		// Windows events can come from Security, System, Application logs
+		if product == "windows" {
+			windowsSources := []string{"security", "system", "application", "microsoft-windows", "windows"}
+			matched := false
+			for _, ws := range windowsSources {
+				if strings.Contains(source, ws) {
+					matched = true
+					break
+				}
+			}
+			if !matched {
+				return false
+			}
+		} else if product == "linux" {
+			linuxSources := []string{"journal", "syslog", "auth", "kern", "linux"}
+			matched := false
+			for _, ls := range linuxSources {
+				if strings.Contains(source, ls) || strings.Contains(eventType, ls) {
+					matched = true
+					break
+				}
+			}
+			if !matched {
+				return false
+			}
+		} else {
+			// Generic matching
+			if !strings.Contains(source, product) && !strings.Contains(eventType, product) {
+				return false
+			}
 		}
 	}
 
@@ -130,32 +162,68 @@ func (e *Engine) matchSelection(selection map[string]interface{}, event *models.
 	totalConditions := len(selection)
 
 	for field, value := range selection {
-		fieldValue := e.getEventField(field, event)
+		// Parse Sigma field modifiers (e.g., "Image|endswith", "CommandLine|contains")
+		fieldName := field
+		modifier := ""
+		if parts := strings.Split(field, "|"); len(parts) == 2 {
+			fieldName = parts[0]
+			modifier = strings.ToLower(parts[1])
+		}
+		
+		fieldValue := e.getEventField(fieldName, event)
 		if fieldValue == "" {
 			continue
 		}
 
+		matched := false
+		
 		// Handle different value types
 		switch v := value.(type) {
 		case string:
-			if e.matchPattern(v, fieldValue) {
-				matchCount++
-			}
+			matched = e.matchWithModifier(v, fieldValue, modifier)
 		case []interface{}:
 			// OR condition - match any value
 			for _, item := range v {
 				if str, ok := item.(string); ok {
-					if e.matchPattern(str, fieldValue) {
-						matchCount++
+					if e.matchWithModifier(str, fieldValue, modifier) {
+						matched = true
 						break
 					}
 				}
 			}
 		}
+		
+		if matched {
+			matchCount++
+		}
 	}
 
 	// All conditions must match
 	return matchCount == totalConditions
+}
+
+// matchWithModifier applies Sigma modifiers to pattern matching
+func (e *Engine) matchWithModifier(pattern, fieldValue, modifier string) bool {
+	pattern = strings.ToLower(pattern)
+	fieldValue = strings.ToLower(fieldValue)
+	
+	switch modifier {
+	case "contains":
+		return strings.Contains(fieldValue, pattern)
+	case "endswith":
+		return strings.HasSuffix(fieldValue, pattern)
+	case "startswith":
+		return strings.HasPrefix(fieldValue, pattern)
+	case "all":
+		// All patterns must be present
+		return strings.Contains(fieldValue, pattern)
+	case "":
+		// No modifier - use standard pattern matching
+		return e.matchPattern(pattern, fieldValue)
+	default:
+		// Unknown modifier - fall back to pattern matching
+		return e.matchPattern(pattern, fieldValue)
+	}
 }
 
 // getEventField extracts field value from event
