@@ -23,9 +23,15 @@ PKG_LIBBPF_LIBS := $(shell pkg-config --libs libbpf 2>/dev/null)
 ifeq ($(PKG_HAS_LIBBPF),0)
 $(error LIBBPF=1 but libbpf not found (install libbpf-dev or use LIBBPF=0))
 endif
-CFLAGS += -DUSE_LIBBPF $(PKG_LIBBPF_CFLAGS)
+CFLAGS += -DUSE_LIBBPF $(PKG_LIBBPF_CFLAGS) -I/usr/include -I/usr/include/bpf
 # pass libbpf cflags to eBPF C compilation too (headers like bpf/ringbuf.h)
-EBPF_CFLAGS += $(PKG_LIBBPF_CFLAGS)
+EBPF_CFLAGS += $(PKG_LIBBPF_CFLAGS) -I/usr/include -I/usr/include/bpf
+# add kernel include dir if installed under /usr/src/linux-headers-*/include
+KDIR := $(shell ls -d /usr/src/linux-headers-* 2>/dev/null | head -n1)
+ifneq ($(KDIR),)
+EBPF_CFLAGS += -I$(KDIR)/include
+CFLAGS += -I$(KDIR)/include
+endif
 LDFLAGS += -lbpf -lelf -lz $(PKG_LIBBPF_LIBS)
 SRC += src/ebpf_loader.c
 EBPF_OBJ = src/ebpf/syscalls.bpf.o
