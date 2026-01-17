@@ -19,9 +19,16 @@ jobs:
       - name: Install deps (for eBPF)
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential libssl-dev pkg-config clang libbpf-dev libelf-dev libelf1 llvm golang-go dpkg-dev
+          sudo apt-get install -y build-essential libssl-dev pkg-config clang libbpf-dev libelf-dev libelf1 llvm linux-headers-$(uname -r) linux-libc-dev
+          # show diagnostic info
+          uname -a
+          pkg-config --modversion libbpf || true
+          ls -la /usr/include/bpf || true
       - name: Build (with eBPF)
-        run: make LIBBPF=1 -j2
+        run: |
+          # If libbpf is not present, abort early with informative message
+          if ! pkg-config --exists libbpf; then echo "libbpf not available; aborting eBPF build"; exit 1; fi
+          make LIBBPF=1 -j2
       - name: Run tests
         run: sudo make test || true
       - name: Build forwarder and run integration test
