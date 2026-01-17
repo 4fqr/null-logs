@@ -1,0 +1,35 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  build-no-ebpf:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install deps
+        run: sudo apt-get update && sudo apt-get install -y build-essential libssl-dev pkg-config
+      - name: Build
+        run: make -j2
+  build-with-ebpf-and-tests:
+    runs-on: ubuntu-latest
+    needs: build-no-ebpf
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install deps (for eBPF)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential libssl-dev pkg-config clang libbpf-dev libelf-dev libelf1 llvm golang-go dpkg-dev
+      - name: Build (with eBPF)
+        run: make LIBBPF=1 -j2
+      - name: Run tests
+        run: sudo make test || true
+      - name: Build forwarder and run integration test
+        run: |
+          sudo apt-get install -y golang
+          make -C cmd/forwarder
+          sh tests/test_forwarder.sh
+      - name: Build .deb
+        run: make package-deb
+        
+

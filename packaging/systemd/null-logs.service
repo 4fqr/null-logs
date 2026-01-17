@@ -1,0 +1,22 @@
+[Unit]
+Description=Null-Logs system activity logger
+After=network.target
+
+[Service]
+Type=simple
+User=null-logs
+Group=null-logs
+AmbientCapabilities=CAP_SYS_ADMIN CAP_NET_ADMIN
+NoNewPrivileges=yes
+ProtectSystem=full
+ProtectHome=read-only
+PrivateTmp=yes
+ReadOnlyPaths=/etc
+RuntimeDirectory=null-logs
+RuntimeDirectoryMode=0750
+ExecStart=/usr/local/bin/null-logs start
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,18 @@
+[Unit]
+Description=Null-Logs Forwarder (secure remote ingestion)
+After=null-logs.service network-online.target
+
+[Service]
+Type=simple
+User=null-logs
+Group=null-logs
+NoNewPrivileges=yes
+ProtectSystem=full
+ProtectHome=read-only
+PrivateTmp=yes
+ExecStart=/usr/local/bin/null-logs-forwarder --log /var/log/null-logs/null-logs.log --url https://collector.example.local:8443/ingest --cert /etc/null-logs/forwarder.crt --key /etc/null-logs/forwarder.key --ca /etc/null-logs/ca.crt
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,5 @@
+/build/
+/*.o
+/null-logs
+/var/log/null-logs/
+/etc/null-logs/

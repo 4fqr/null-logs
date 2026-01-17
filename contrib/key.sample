@@ -1,0 +1,3 @@
+# Replace with a strong random key. This file is for demo only.
+# Use: head -c 32 /dev/urandom | base64
+null-logs-demo-key-REPLACE_ME

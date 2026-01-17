@@ -1,0 +1,14 @@
+/var/log/null-logs/*.log {
+    su null-logs null-logs
+    daily
+    rotate 14
+    compress
+    delaycompress
+    missingok
+    notifempty
+    create 0600 null-logs null-logs
+    sharedscripts
+    postrotate
+        systemctl kill -s HUP null-logs.service >/dev/null 2>&1 || true
+    endscript
+}

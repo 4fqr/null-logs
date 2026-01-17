@@ -1,0 +1,8 @@
+Package: null-logs
+Version: 0.1.0
+Section: utils
+Priority: optional
+Architecture: amd64
+Maintainer: Null-Logs <null-logs@example.com>
+Description: Null-Logs - Linux activity logging daemon and forwarder
+ A production ready system activity logger for detection and forensics.

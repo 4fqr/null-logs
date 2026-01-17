@@ -1,0 +1,10 @@
+#!/bin/sh
+set -e
+
+# create null-logs user and groups
+if ! id -u null-logs >/dev/null 2>&1; then
+    useradd --system --no-create-home --shell /usr/sbin/nologin null-logs || true
+fi
+mkdir -p /var/log/null-logs
+chown null-logs:null-logs /var/log/null-logs || true
+systemctl daemon-reload || true
