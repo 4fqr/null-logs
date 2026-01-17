@@ -35,8 +35,15 @@ jobs:
       - name: Build (with eBPF)
         if: steps.check-ebpf.outputs.skip == 'false'
         run: |
-          echo "Building eBPF components"
-          make LIBBPF=1 -j2 || (echo "eBPF build failed (non-fatal)"; echo "skip=true" >> $GITHUB_OUTPUT)
+          echo "Building eBPF components (best-effort, non-fatal)"
+          set +e
+          make LIBBPF=1 -j2
+          rc=$?
+          if [ $rc -ne 0 ]; then
+            echo "eBPF build failed (non-fatal) rc=$rc"
+            echo "skip=true" >> $GITHUB_OUTPUT
+          fi
+          set -e
       - name: Build (skip eBPF)
         if: steps.check-ebpf.outputs.skip == 'true'
         run: |
@@ -49,6 +56,14 @@ jobs:
           make -C cmd/forwarder
           sh tests/test_forwarder.sh
       - name: Build .deb
-        run: make package-deb
+        run: |
+          # If eBPF build or environment was skipped, ensure the package build does not try to compile eBPF
+          if [ "${{ steps.check-ebpf.outputs.skip }}" = "true" ] || [ "${{ steps.build.outputs.skip }}" = "true" ] ; then
+            echo "Building .deb with LIBBPF=0"
+            make package-deb LIBBPF=0
+          else
+            echo "Building .deb with full eBPF artifacts (if available)"
+            make package-deb
+          fi
         
 
